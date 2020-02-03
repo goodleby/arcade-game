@@ -9,10 +9,11 @@ export const loadImage = source =>
     img.onerror = err => rej(err);
   });
 export const loadImages = sources => Promise.all(sources.map(item => loadImage(item)));
-export const loadImagesFromObj = object => {
-  let obj = {...object};
-  loadImages(Object.values(obj)).then(images => {
-    Object.keys(obj).forEach((item, i) => (obj[item] = images[i]));
-    return obj;
+export const loadImagesFromObj = object =>
+  new Promise((res, rej) => {
+    let obj = {...object};
+    loadImages(Object.values(obj)).then(images => {
+      Object.keys(obj).forEach((item, i) => (obj[item] = images[i]));
+      res(obj);
+    });
   });
-};
