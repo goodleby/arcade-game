@@ -2,14 +2,13 @@ import {character} from 'images';
 import {loadImage} from 'components/promises';
 
 export const Player = (function() {
-  const loadCharacter = loadImage(character);
-  return class Player {
+  const loadAssets = loadImage(character);
+  class Player {
     constructor(x, y, lifes) {
       this.x = x;
       this.y = y;
       this.lifes = lifes;
-      loadCharacter.then(img => (this.img = img));
-      this.ready = Promise.all([loadCharacter]);
+      loadAssets.then(img => ((this.img = img), console.log('Player img is loaded')));
     }
     render(ctx) {
       ctx.drawImage(this.img, this.x * 101, this.y * 80 - 20);
@@ -42,5 +41,7 @@ export const Player = (function() {
     moveDown() {
       this.move('down');
     }
-  };
+  }
+  Player.ready = loadAssets;
+  return Player;
 })();

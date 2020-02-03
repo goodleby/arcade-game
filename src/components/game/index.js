@@ -5,7 +5,13 @@ export const Game = (function() {
   const levels = [
     {
       map: ['water', 'stone', 'stone', 'stone', 'stone', 'grass'],
-      width: 7
+      width: 7,
+      options: {
+        maxEnemies: 10,
+        minEnemySpeed: 0.05,
+        maxEnemySpeed: 0.2,
+        enemySpawnRate: 0.04
+      }
     }
   ];
   return class Game {
@@ -16,33 +22,44 @@ export const Game = (function() {
       this.canvas.width = width * 101;
       this.canvas.height = map.length * 101;
       const ctx = (this.ctx = this.canvas.getContext('2d'));
-      this.level = new Level(ctx, map, width);
-      this.player = player || new Player(Math.floor(this.level.width / 2), this.level.height - 1, 3);
-      this.start = Promise.all([this.level.ready, this.player.ready]);
+      this.level = new Level(map, width);
+      this.player =
+        player || new Player(Math.floor(this.level.width / 2), this.level.height - 1, 3);
+      this.start = Promise.all([Level.ready, Player.ready]);
+      this.start.then(() => {
+        console.log('Game is starting');
+        console.log(this.player.img);
+        console.log(this.level.assets);
+      });
       this.start
         .then(() => this.loop())
         .then(() => {
           document.addEventListener('keydown', e => {
+            const {
+              player,
+              level: {width, height}
+            } = this;
             switch (e.keyCode) {
               case 37:
               case 65:
-                this.player.x > 0 && this.player.moveLeft();
+                player.x > 0 && player.moveLeft();
                 break;
               case 38:
               case 87:
-                this.player.y > 0 && this.player.moveUp();
+                player.y > 0 && player.moveUp();
                 break;
               case 39:
               case 68:
-                console.log(this.level.width);
-                this.player.x < this.level.width - 1 && this.player.moveRight();
+                player.x < width - 1 && player.moveRight();
                 break;
               case 40:
-                console.log(this.level.height);
-                this.player.y < this.level.height - 1 && this.player.moveDown();
+                player.y < height - 1 && player.moveDown();
               case 83:
                 break;
             }
+          });
+          document.addEventListener('keydown', e => {
+            e.keyCode === 32 && this.loop();
           });
         })
         .catch(console.error);
@@ -52,7 +69,7 @@ export const Game = (function() {
     }
     loop() {
       this.clearField();
-      this.level.render();
+      this.level.render(this.ctx);
       this.player.render(this.ctx);
       requestAnimationFrame(() => this.loop());
     }
