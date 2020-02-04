@@ -8,21 +8,17 @@ import {Enemy} from 'components/enemy';
 export const Game = (function() {
   const levels = [
     {
-      map: ['water', 'stone', 'stone', 'stone', 'stone', 'grass'],
+      map: ['grass', 'stone', 'stone', 'stone', 'stone', 'water'],
       width: 7,
-      playerPos: {
-        x: 3,
-        y: 5
-      },
       spawnArea: {
         from: 1,
         to: 4
       },
       enemiesOptions: {
         maxEnemies: 10,
-        minEnemySpeed: 0.02,
-        maxEnemySpeed: 0.05,
-        enemySpawnRate: 0.04
+        minEnemySpeed: 0.015,
+        maxEnemySpeed: 0.045,
+        enemySpawnRate: 0.045
       }
     }
   ];
@@ -31,7 +27,7 @@ export const Game = (function() {
     constructor(canvas, levelIndex, player) {
       this.canvas = canvas;
       this.levelIndex = levelIndex;
-      const {map, width, playerPos, spawnArea, enemiesOptions} = levels[levelIndex];
+      const {map, width, spawnArea, enemiesOptions} = levels[levelIndex];
       this.canvas.width = width * 101;
       this.canvas.height = map.length * 101;
       const ctx = (this.ctx = canvas.getContext('2d'));
@@ -39,9 +35,8 @@ export const Game = (function() {
       loadAssets
         .then(assets => {
           this.assets = assets;
-          this.level = new Level(assets, map, width, playerPos, spawnArea, enemiesOptions);
-          const {x, y} = playerPos;
-          this.player = player || new Player(assets.character, 3, x, y);
+          this.level = new Level(assets, map, width, spawnArea, enemiesOptions);
+          this.player = player || new Player(assets.character, 3);
           this.loop();
           this.initEventListeners();
         })
@@ -74,13 +69,10 @@ export const Game = (function() {
       });
     }
     renderEnemies(ctx) {
-      const {maxEnemies, enemySpawnRate} = this.level.enemiesOptions;
-      if (this.enemies.length < maxEnemies) {
-        if (getRandBool(1, Math.round(enemySpawnRate * 100))) {
-          this.enemies.push(
-            new Enemy(this.assets.enemy, this.level.getSpawnY(), this.level.getSpeed())
-          );
-        }
+      if (this.level.needEnemy(this.enemies.length)) {
+        this.enemies.push(
+          new Enemy(this.assets.enemy, this.level.getSpawnY(), this.level.getEnemySpeed())
+        );
       }
       for (let i = 0; i < this.enemies.length; i++) {
         const item = this.enemies[i];
@@ -97,7 +89,7 @@ export const Game = (function() {
           item => Math.round(item.x) === this.player.x && item.y === this.player.y
         )
       ) {
-        this.player.collapse(this.level);
+        this.player.collapse();
       }
     }
     loop() {

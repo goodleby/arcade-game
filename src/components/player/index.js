@@ -3,8 +3,8 @@ export const Player = (function() {
     constructor(img, lifes, x, y) {
       this.img = img;
       this.lifes = lifes;
-      this.x = x;
-      this.y = y;
+      this.x = x || 0;
+      this.y = y || 0;
     }
     setPos(x, y) {
       this.x = x;
@@ -41,10 +41,10 @@ export const Player = (function() {
     moveDown() {
       this.move('down');
     }
-    collapse(level) {
-      const {x, y} = level.playerPos;
-      this.x = x;
-      this.y = y;
+    collapse() {
+      this.x = 0;
+      this.y = 0;
+      this.hp--;
     }
   };
 })();

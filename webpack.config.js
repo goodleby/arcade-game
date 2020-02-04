@@ -41,31 +41,9 @@ module.exports = (env, argv) => {
     module: {
       rules: [
         {
-          test: /\.js$/i,
+          test: /\.(js|ts)$/i,
           exclude: /node_modules/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: {
-                presets: ['@babel/preset-env'],
-                plugins: [
-                  [
-                    'module-resolver',
-                    {
-                      root: ['./'],
-                      alias: {
-                        assets: './assets/',
-                        images: './assets/images/',
-                        fonts: './assets/fonts/',
-                        src: './src/',
-                        components: './src/components/'
-                      }
-                    }
-                  ]
-                ]
-              }
-            }
-          ]
+          use: ['babel-loader']
         },
         {test: /\.(png|svg|jpg|jpeg|gif|woff|woff2|eot|ttf|otf)$/i, use: ['file-loader']},
         {
@@ -99,6 +77,9 @@ module.exports = (env, argv) => {
           ]
         }
       ]
+    },
+    resolve: {
+      extensions: ['.ts', '.js']
     },
     devServer: {
       contentBase: './dist',
