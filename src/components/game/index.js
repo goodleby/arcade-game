@@ -4,39 +4,99 @@ import {loadImagesFromObj} from 'components/promises';
 import {Level} from 'components/level';
 import {Player} from 'components/player';
 import {Enemy} from 'components/enemy';
+import {Goal} from 'components/goal';
 
 export const Game = (function() {
-  const levels = [
-    {
-      map: ['grass', 'stone', 'stone', 'stone', 'stone', 'water'],
-      width: 7,
-      spawnArea: {
-        from: 1,
-        to: 4
+  const levelOptions = {
+    playerPos: {x: 3, y: 5},
+    map: [
+      {
+        type: 'water',
+        spawn: false
       },
-      enemiesOptions: {
-        maxEnemies: 10,
-        minEnemySpeed: 0.015,
-        maxEnemySpeed: 0.045,
-        enemySpawnRate: 0.045
+      {
+        type: 'stone',
+        spawn: true
+      },
+      {
+        type: 'stone',
+        spawn: true
+      },
+      {
+        type: 'stone',
+        spawn: true
+      },
+      {
+        type: 'stone',
+        spawn: true
+      },
+      {
+        type: 'grass',
+        spawn: false
       }
+    ],
+    width: 7,
+    enemiesOptions: {
+      maxAmount: 10,
+      maxSpeed: 0.045,
+      minSpeed: 0.015,
+      spawnRate: 0.045
     }
-  ];
+  };
   const loadAssets = loadImagesFromObj(images);
   return class Game {
-    constructor(canvas, levelIndex, player) {
+    constructor(canvas, player) {
       this.canvas = canvas;
-      this.levelIndex = levelIndex;
-      const {map, width, spawnArea, enemiesOptions} = levels[levelIndex];
+      const {map, width} = levelOptions;
       this.canvas.width = width * 101;
       this.canvas.height = map.length * 101;
-      const ctx = (this.ctx = canvas.getContext('2d'));
+      this.ctx = canvas.getContext('2d');
       this.enemies = [];
+      const goals = [
+        new Goal(
+          [
+            [
+              {x: 0, y: 0},
+              {x: 1, y: 0},
+              {x: 2, y: 0},
+              {x: 3, y: 0},
+              {x: 4, y: 0},
+              {x: 5, y: 0},
+              {x: 6, y: 0}
+            ]
+          ],
+          () => {
+            this.level.evolve();
+            this.currentGoal = goals[1];
+            this.level.setSpawnPos({x: 3, y: 0});
+          }
+        ),
+        new Goal(
+          [
+            [
+              {x: 0, y: 5},
+              {x: 1, y: 5},
+              {x: 2, y: 5},
+              {x: 3, y: 5},
+              {x: 4, y: 5},
+              {x: 5, y: 5},
+              {x: 6, y: 5}
+            ]
+          ],
+          () => {
+            this.level.evolve();
+            this.currentGoal = goals[0];
+            this.level.setSpawnPos({x: 3, y: 5});
+          }
+        )
+      ];
+      this.currentGoal = goals[0];
       loadAssets
         .then(assets => {
           this.assets = assets;
-          this.level = new Level(assets, map, width, spawnArea, enemiesOptions);
-          this.player = player || new Player(assets.character, 3);
+          this.level = new Level(assets, levelOptions);
+          const {x, y} = levelOptions.playerPos;
+          this.player = player || new Player(assets.character, 3, x, y);
           this.loop();
           this.initEventListeners();
         })
@@ -89,7 +149,8 @@ export const Game = (function() {
           item => Math.round(item.x) === this.player.x && item.y === this.player.y
         )
       ) {
-        this.player.collapse();
+        this.player.collapse(this.level.playerPos);
+        this.currentGoal.reset();
       }
     }
     loop() {
@@ -98,6 +159,7 @@ export const Game = (function() {
       this.player.render(this.ctx);
       this.renderEnemies(this.ctx);
       this.checkCollisions();
+      this.currentGoal.checkRequirements(this.player);
       requestAnimationFrame(() => this.loop());
     }
   };
