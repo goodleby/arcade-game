@@ -52,7 +52,7 @@ export const Game = (function() {
       this.canvas.height = map.length * 101;
       this.ctx = canvas.getContext('2d');
       this.enemies = [];
-      const goals = [
+      const infiniteGoals = [
         new Goal(
           [
             [
@@ -66,9 +66,10 @@ export const Game = (function() {
             ]
           ],
           () => {
+            this.score += 10;
             this.level.evolve();
-            this.currentGoal = goals[1];
-            this.level.setSpawnPos({x: 3, y: 0});
+            this.goals = [infiniteGoals[1]];
+            this.level.setSpawnPos({x: Math.floor(this.level.width / 2), y: 0});
           }
         ),
         new Goal(
@@ -84,13 +85,19 @@ export const Game = (function() {
             ]
           ],
           () => {
+            this.score += 10;
             this.level.evolve();
-            this.currentGoal = goals[0];
-            this.level.setSpawnPos({x: 3, y: 5});
+            this.goals = [infiniteGoals[0]];
+            this.level.setSpawnPos({
+              x: Math.floor(this.level.width / 2),
+              y: this.level.height - 1
+            });
           }
         )
       ];
-      this.currentGoal = goals[0];
+      this.goals = [infiniteGoals[0]];
+      this.pause = false;
+      this.score = 0;
       loadAssets
         .then(assets => {
           this.assets = assets;
@@ -103,6 +110,7 @@ export const Game = (function() {
         .catch(console.error);
     }
     initEventListeners() {
+      if (this.pause) return;
       document.addEventListener('keydown', e => {
         const {
           player,
@@ -140,6 +148,12 @@ export const Game = (function() {
         if (item.x > this.level.width) this.enemies.splice(i--, 1);
       }
     }
+    renderHp() {
+      const startPoint = (this.canvas.width - 30 * this.player.hp) / 2;
+      for (let i = 0; i < this.player.hp; i++) {
+        this.ctx.drawImage(this.assets.heart, startPoint + 30 * i, 0, 30, 51);
+      }
+    }
     clearField() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -149,8 +163,13 @@ export const Game = (function() {
           item => Math.round(item.x) === this.player.x && item.y === this.player.y
         )
       ) {
-        this.player.collapse(this.level.playerPos);
-        this.currentGoal.reset();
+        if (this.player.hp > 1) {
+          this.player.collapse(this.level.playerPos);
+          this.goals.forEach(item => item.reset());
+        } else {
+          this.pause = true;
+          alert('You scored ' + this.score);
+        }
       }
     }
     loop() {
@@ -159,8 +178,9 @@ export const Game = (function() {
       this.player.render(this.ctx);
       this.renderEnemies(this.ctx);
       this.checkCollisions();
-      this.currentGoal.checkRequirements(this.player);
-      requestAnimationFrame(() => this.loop());
+      this.renderHp();
+      this.goals.forEach(item => item.checkRequirements(this.player));
+      if (!this.pause) requestAnimationFrame(() => this.loop());
     }
   };
 })();

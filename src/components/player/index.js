@@ -1,8 +1,8 @@
 export const Player = (function() {
   return class Player {
-    constructor(img, lifes, x, y) {
+    constructor(img, hp, x, y) {
       this.img = img;
-      this.lifes = lifes;
+      this.hp = hp;
       this.x = x;
       this.y = y;
     }
@@ -46,6 +46,9 @@ export const Player = (function() {
       this.x = x;
       this.y = y;
       this.hp--;
+    }
+    heal(amount = 1) {
+      this.hp++;
     }
   };
 })();
