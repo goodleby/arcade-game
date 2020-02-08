@@ -1,20 +1,19 @@
 /**
- * @arg {number} min
- * @arg {number} max
- * @return Random number between `min` and `max` (including both). If only one arg is passed, it will return random number from 0 in range = passed arg.
+ * @description If given only one parameter, will return random number from 0 in given range
  */
 export const getRandNum = (min, max) =>
   max === undefined
     ? getRandNum(0, min - 1)
     : Math.floor(Math.random() * (max - min + 1) + min);
 /**
- * @arg {number} successes - default = 1
- * @arg {number} fails - default = 1
- * @return Random boolean value with chance ratio = `successes` / `fails`
- * @description If no arguments is passed, it will return random boolean value with 50% / 50% chance for each
+ * @param {number} ratio - successes / fails
+ * @returns Random boolean value with given ratio
  */
-export const getRandBool = (successes = 1, fails = 1) =>
-  Math.floor(Math.random() * (fails + successes)) >= fails;
+export const getRandBool = ratio =>
+  Math.floor(
+    Math.random() *
+      (1 + ratio * 10 ** (ratio % 1 === 0 ? 0 : String(ratio).split('.')[1].length))
+  ) < 1;
 export const shuffleArr = array => {
   let arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {

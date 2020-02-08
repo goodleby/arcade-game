@@ -1,17 +1,16 @@
 export const Enemy = (function() {
   return class Enemy {
-    constructor(img, y, speed) {
-      this.img = img;
-      this.y = y;
+    constructor(y, speed) {
       this.x = -1;
+      this.y = y;
       this.speed = speed;
     }
     move() {
       this.x += this.speed;
     }
-    render(ctx) {
+    render(img, ctx) {
       this.move();
-      ctx.drawImage(this.img, this.x * 101, this.y * 80 - 20);
+      ctx.drawImage(img, this.x * 101, this.y * 80 - 20);
     }
   };
 })();
