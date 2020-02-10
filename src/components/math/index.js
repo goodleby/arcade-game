@@ -6,14 +6,13 @@ export const getRandNum = (min, max) =>
     ? getRandNum(0, min - 1)
     : Math.floor(Math.random() * (max - min + 1) + min);
 /**
- * @param {number} ratio - successes / fails
- * @returns Random boolean value with given ratio
+ * @description If given one parameter, will use it as fails and set successes to 1.
+ * @returns Random boolean value with given ratio of successes / fails
  */
-export const getRandBool = ratio =>
-  Math.floor(
-    Math.random() *
-      (1 + ratio * 10 ** (ratio % 1 === 0 ? 0 : String(ratio).split('.')[1].length))
-  ) < 1;
+export const getRandBool = (successes, fails) =>
+  fails === undefined
+    ? getRandBool(1, successes)
+    : Math.floor(Math.random() * fails) >= fails - successes;
 export const shuffleArr = array => {
   let arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
