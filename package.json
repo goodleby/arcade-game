@@ -1,27 +1,27 @@
 {
-  "name": "my-webpack-configuration",
+  "name": "arcade-game",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "type-check": "tsc --noEmit",
-    "watch:type-check": "tsc --noEmit --watch",
-    "start": "webpack-dev-server --mode=development --open",
-    "build:dev": "webpack --mode=development",
+    "test": "jest",
+    "test:types": "tsc --noEmit",
     "watch": "webpack --mode=development --watch",
+    "watch:types": "tsc --noEmit --watch",
+    "start": "webpack-dev-server --mode=development --open",
     "build": "webpack --mode=production",
-    "build:type-check": "tsc --noEmit && webpack --mode=production"
+    "build:dev": "webpack --mode=development",
+    "build:types": "tsc --noEmit && webpack --mode=production"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/goodleby/my-webpack-configuration.git"
+    "url": "git+https://github.com/goodleby/arcade-game.git"
   },
   "author": "Alex Chebotarsky",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/goodleby/my-webpack-configuration/issues"
+    "url": "https://github.com/goodleby/arcade-game/issues"
   },
-  "homepage": "https://github.com/goodleby/my-webpack-configuration#readme",
+  "homepage": "https://github.com/goodleby/arcade-game#readme",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",

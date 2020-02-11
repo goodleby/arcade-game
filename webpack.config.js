@@ -1,7 +1,14 @@
+const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const banner = `
+/**!
+ * @link https://github.com/goodleby/arcade-game
+ */
+`;
 
 module.exports = (env, argv) => {
   const defs = {
@@ -19,23 +26,23 @@ module.exports = (env, argv) => {
     entry: {
       index: './src/index.js'
     },
-    mode: argv.mode || 'production',
-    devtool: (env && env.sourcemap) || defs.sourcemap[argv.mode] || false,
     output: {
-      filename:
-        (env && env.usehash) || defs.usehash[argv.mode]
-          ? '[name].[contenthash:6].js'
-          : '[name].bundle.js',
+      filename: `[name]${
+        (env && env.usehash) || defs.usehash[argv.mode] ? '_[contenthash:6]' : ''
+      }${argv.mode === 'production' ? '.min' : ''}.js`,
       path: path.resolve(__dirname, 'dist')
     },
     plugins: [
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({template: path.resolve(__dirname, './src/index.html')}),
       new MiniCssExtractPlugin({
-        filename:
-          (env && env.usehash) || defs.usehash[argv.mode]
-            ? '[name].[contenthash:6].css'
-            : '[name].bundle.css'
+        filename: `[name]${
+          (env && env.usehash) || defs.usehash[argv.mode] ? '_[contenthash:6]' : ''
+        }${argv.mode === 'production' ? '.min' : ''}.css`
+      }),
+      new webpack.BannerPlugin({
+        banner: banner,
+        raw: true
       })
     ],
     module: {
@@ -66,9 +73,9 @@ module.exports = (env, argv) => {
               loader: 'postcss-loader',
               options: {
                 ident: 'postcss',
-                plugins: loader => {
+                plugins: () => {
                   const plugins = [require('postcss-preset-env')()];
-                  if (env && env.mode === 'production') plugins.push(require('cssnano'));
+                  if (argv.mode === 'production') plugins.push(require('cssnano'));
                   return plugins;
                 }
               }
@@ -78,9 +85,11 @@ module.exports = (env, argv) => {
         }
       ]
     },
+    mode: argv.mode || 'production',
     resolve: {
       extensions: ['.ts', '.js']
     },
+    devtool: (env && env.sourcemap) || defs.sourcemap[argv.mode] || false,
     devServer: {
       contentBase: './dist',
       hot: true
