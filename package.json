@@ -7,6 +7,7 @@
     "test": "jest",
     "test:types": "tsc --noEmit",
     "watch": "webpack --mode=development --watch",
+    "watch:prod": "webpack --mode=production --watch",
     "watch:types": "tsc --noEmit --watch",
     "start": "webpack-dev-server --mode=development --open",
     "build": "webpack --mode=production",

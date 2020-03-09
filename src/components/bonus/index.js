@@ -1,3 +1,1 @@
-import {Heart} from './heart';
-
-export {Heart};
+export * from './heart';

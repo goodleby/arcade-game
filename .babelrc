@@ -10,7 +10,8 @@
           "images": "./assets/images/",
           "fonts": "./assets/fonts/",
           "src": "./src/",
-          "components": "./src/components/"
+          "components": "./src/components/",
+          "libs": "./src/libs/"
         }
       }
     ]
